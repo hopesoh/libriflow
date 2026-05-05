@@ -2,10 +2,11 @@ package com.libriflow.controller;
 
 import com.libriflow.model.Book;
 import com.libriflow.model.Order;
-import com.libriflow.model.User;
+import com.libriflow.order.OrderResponseDTO;
+import com.libriflow.user.integration.api.UserApi;
+import com.libriflow.user.integration.api.UserDetailsDTO;
 import com.libriflow.repository.BookRepository;
 import com.libriflow.repository.OrderRepository;
-import com.libriflow.repository.UserRepository;
 import com.libriflow.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -32,8 +33,11 @@ public class OrderController {
     @Autowired
     private BookRepository bookRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserApi userApi;
+
+    public OrderController(UserApi userApi) {
+        this.userApi = userApi;
+    }
 
     @GetMapping
     public List<Order> findAll() {
@@ -48,9 +52,20 @@ public class OrderController {
     }
 
     @GetMapping("/user/{userId}")
-    public List<Order> findByUserId(@PathVariable Long userId) {
-        // Sem validar se o usuário existe antes de buscar os pedidos
-        return orderService.findByUserId(userId);
+    public ResponseEntity<?>  findByUserId(@PathVariable Long userId) {
+
+        if (!userApi.checkUserExists(userId))
+            return ResponseEntity
+                    .badRequest()
+                    .body("Usuário não encontrado com id: " + userId);
+
+        UserDetailsDTO userDetails = userApi.getUserDetails(userId);
+        return ResponseEntity.ok(orderService
+                .findByUserId(userId)
+                .stream()
+                .map(order -> new OrderResponseDTO(order.getId(), order.getTotal(), userDetails.name(), userDetails.email()))
+                .toList()
+        );
     }
 
     @GetMapping("/user/{userId}/status/{status}")
@@ -64,17 +79,14 @@ public class OrderController {
      * Validação de estoque, cálculo de preço, atualização de inventário e criação
      * do pedido foram colocados aqui para dificultar o reúso e a testabilidade.
      */
-    @PostMapping("/purchase")
-    public ResponseEntity<?> purchase(@RequestParam Long userId,
+    @PostMapping("/purchase/{userId}")
+    public ResponseEntity<?> purchase(@PathVariable Long userId,
                                       @RequestBody List<Long> bookIds) {
 
-        // --- VALIDAÇÃO DE USUÁRIO NO CONTROLLER ---
-        Optional<User> userOpt = userRepository.findById(userId);
-        if (userOpt.isEmpty()) {
-            return ResponseEntity.badRequest()
-                    .body("Usuário não encontrado com id: " + userId);
-        }
-        User user = userOpt.get();
+        if (!userApi.checkUserExists(userId))
+            return ResponseEntity
+                .badRequest()
+                .body("Usuário não encontrado com id: " + userId);
 
         if (bookIds == null || bookIds.isEmpty()) {
             return ResponseEntity.badRequest()
@@ -113,16 +125,21 @@ public class OrderController {
 
         // --- CRIAÇÃO DO PEDIDO NO CONTROLLER ---
         Order order = new Order();
-        order.setUser(user);
+        order.setUserId(userId);
         order.setBooks(booksDosPedido);
         order.setTotal(total);
         order.setCreatedAt(LocalDateTime.now());
         order.setStatus("CONFIRMADO");
 
         Order saved = orderRepository.save(order);
+        UserDetailsDTO userDetails = userApi.getUserDetails(userId);
 
-        // Retorna a entidade completa: expõe o objeto User (com senha) e todos os Books (com estoque)
-        return ResponseEntity.ok(saved);
+        return ResponseEntity.ok(new OrderResponseDTO(
+                saved.getId(),
+                saved.getTotal(),
+                userDetails.name(),
+                userDetails.email()
+        ));
     }
 
     @DeleteMapping("/{id}")

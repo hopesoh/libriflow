@@ -1,9 +1,9 @@
 package com.libriflow;
 
 import com.libriflow.model.Book;
-import com.libriflow.model.User;
+import com.libriflow.user.User;
 import com.libriflow.repository.BookRepository;
-import com.libriflow.repository.UserRepository;
+import com.libriflow.user.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,13 +1,9 @@
-package com.libriflow.model;
+package com.libriflow.user;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -23,8 +19,4 @@ public class User {
     private String name;
     private String email;
     private String password; // texto puro - anti-padrão de segurança intencional
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JsonIgnore
-    private List<Order> orders = new ArrayList<>();
 }
