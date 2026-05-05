@@ -21,10 +21,7 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Referência direta à entidade User - acoplamento forte
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private Long userId;
 
     // Lista direta de entidades Book - acoplamento forte, impossível separar em microsserviço
     @ManyToMany(fetch = FetchType.EAGER)

@@ -1,6 +1,5 @@
-package com.libriflow.repository;
+package com.libriflow.user;
 
-import com.libriflow.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

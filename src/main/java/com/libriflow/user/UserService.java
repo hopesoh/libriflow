@@ -1,7 +1,5 @@
-package com.libriflow.service;
+package com.libriflow.user;
 
-import com.libriflow.model.User;
-import com.libriflow.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
