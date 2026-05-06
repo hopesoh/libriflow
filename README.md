@@ -3,7 +3,13 @@
 E-commerce de livros construído como um **Monólito em Camadas** em Java 23 + Spring Boot 3.
 
 > Este projeto é um **estudo de anti-padrões**. O código é funcional, mas foi escrito
+> 
 > intencionalmente com más práticas para servir como base de comparação com arquiteturas bem estruturadas.
+> 
+> https://www.amazon.com/Monolith-Microservices-Evolutionary-Patterns-Transform/dp/1492047848
+
+
+<img width="582" height="764" alt="image" src="https://github.com/user-attachments/assets/4fb3286e-76fd-4b1d-9c9d-452dbc19798b" />
 
 ---
 
